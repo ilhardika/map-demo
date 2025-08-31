@@ -1,0 +1,137 @@
+[
+  {
+    "id": 1,
+    "name": "Mount Sinai Hospital",
+    "category": "Healthcare",
+    "lat": 40.7895,
+    "lon": -73.9531,
+    "address": "1 Gustave L. Levy Pl, New York, NY 10029",
+    "phone": "+1-212-241-6500"
+  },
+  {
+    "id": 2,
+    "name": "Chase Bank",
+    "category": "Banking",
+    "lat": 40.7589,
+    "lon": -73.9851,
+    "address": "270 Park Ave, New York, NY 10017",
+    "phone": "+1-212-270-6000"
+  },
+  {
+    "id": 3,
+    "name": "Times Square",
+    "category": "Shopping",
+    "lat": 40.7580,
+    "lon": -73.9855,
+    "address": "Times Square, New York, NY 10036",
+    "phone": "+1-212-768-1560"
+  },
+  {
+    "id": 4,
+    "name": "Statue of Liberty",
+    "category": "Tourism",
+    "lat": 40.6892,
+    "lon": -74.0445,
+    "address": "New York, NY 10004",
+    "phone": "+1-212-363-3200"
+  },
+  {
+    "id": 5,
+    "name": "Central Park",
+    "category": "Tourism",
+    "lat": 40.7829,
+    "lon": -73.9654,
+    "address": "New York, NY 10024",
+    "phone": "+1-212-310-6600"
+  },
+  {
+    "id": 6,
+    "name": "NewYork-Presbyterian Hospital",
+    "category": "Healthcare",
+    "lat": 40.7766,
+    "lon": -73.9477,
+    "address": "525 E 68th St, New York, NY 10065",
+    "phone": "+1-212-746-5454"
+  },
+  {
+    "id": 7,
+    "name": "Bank of America",
+    "category": "Banking",
+    "lat": 40.7555,
+    "lon": -73.9865,
+    "address": "1 Bryant Park, New York, NY 10036",
+    "phone": "+1-212-548-3000"
+  },
+  {
+    "id": 8,
+    "name": "Starbucks Reserve Roastery",
+    "category": "Restaurant",
+    "lat": 40.7410,
+    "lon": -73.9897,
+    "address": "61 9th Ave, New York, NY 10011",
+    "phone": "+1-212-691-0531"
+  },
+  {
+    "id": 9,
+    "name": "McDonald's Times Square",
+    "category": "Restaurant",
+    "lat": 40.7589,
+    "lon": -73.9851,
+    "address": "1528 Broadway, New York, NY 10036",
+    "phone": "+1-212-704-6800"
+  },
+  {
+    "id": 10,
+    "name": "The Plaza Hotel",
+    "category": "Hotel",
+    "lat": 40.7648,
+    "lon": -73.9761,
+    "address": "768 5th Ave, New York, NY 10019",
+    "phone": "+1-212-759-3000"
+  },
+  {
+    "id": 11,
+    "name": "Grand Central Terminal",
+    "category": "Transportation",
+    "lat": 40.7527,
+    "lon": -73.9772,
+    "address": "89 E 42nd St, New York, NY 10017",
+    "phone": "+1-212-340-2583"
+  },
+  {
+    "id": 12,
+    "name": "CVS Pharmacy",
+    "category": "Healthcare",
+    "lat": 40.7505,
+    "lon": -73.9934,
+    "address": "630 9th Ave, New York, NY 10036",
+    "phone": "+1-212-581-6875"
+  },
+  {
+    "id": 13,
+    "name": "Citibank",
+    "category": "Banking",
+    "lat": 40.7614,
+    "lon": -73.9776,
+    "address": "153 E 53rd St, New York, NY 10022",
+    "phone": "+1-800-374-9700"
+  },
+  {
+    "id": 14,
+    "name": "Joe's Pizza",
+    "category": "Restaurant",
+    "lat": 40.7505,
+    "lon": -73.9934,
+    "address": "630 9th Ave, New York, NY 10036",
+    "phone": "+1-212-563-9700"
+  },
+  {
+    "id": 15,
+    "name": "Penn Station",
+    "category": "Transportation",
+    "lat": 40.7505,
+    "lon": -73.9934,
+    "address": "1 Penn Plaza, New York, NY 10119",
+    "phone": "+1-212-630-6401"
+  }
+]

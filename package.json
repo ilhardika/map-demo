@@ -1,0 +1,42 @@
+{
+  "name": "map-demo",
+  "version": "1.0.0",
+  "description": "Interactive map application for zipcode search using Leaflet.js, OpenStreetMap, and Nominatim API",
+  "main": "index.html",
+  "scripts": {
+    "start": "http-server -p 8080 -c-1",
+    "dev": "http-server -p 8080 -c-1 -o",
+    "lint": "eslint *.js",
+    "format": "prettier --write *.js *.html *.css *.json *.md"
+  },
+  "keywords": [
+    "leaflet",
+    "openstreetmap",
+    "nominatim",
+    "geocoding",
+    "maps",
+    "zipcode",
+    "javascript",
+    "jquery",
+    "vanilla-js",
+    "responsive"
+  ],
+  "author": "Map Demo",
+  "license": "MIT",
+  "devDependencies": {
+    "http-server": "^14.1.1",
+    "eslint": "^8.57.0",
+    "prettier": "^3.2.5"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "."
+  },
+  "bugs": {
+    "url": "./issues"
+  },
+  "homepage": "./README.md"
+}

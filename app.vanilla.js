@@ -1,5 +1,5 @@
 // Vanilla JavaScript Implementation
-window.MapAppVanilla = (function() {
+document.addEventListener('DOMContentLoaded', function() {
     'use strict';
     
     let map;
@@ -28,15 +28,19 @@ window.MapAppVanilla = (function() {
     // Cache DOM elements
     function cacheElements() {
         elements = {
-            searchBtn: document.getElementById('searchBtn'),
-            zipcodeInput: document.getElementById('zipcodeInput'),
-            findServicesBtn: document.getElementById('findServicesBtn'),
-            servicesContainer: document.getElementById('servicesContainer'),
-            servicesList: document.getElementById('servicesList'),
-            errorMessage: document.getElementById('errorMessage'),
-            statusMessage: document.getElementById('statusMessage'),
-            searchText: document.querySelector('.search-text'),
-            loadingSpinner: document.querySelector('.loading-spinner')
+            searchBtn: document.getElementById('search-btn'),
+            zipcodeInput: document.getElementById('zipcode-input'),
+            findServicesBtn: document.getElementById('find-services-btn'),
+            errorMessage: document.getElementById('error-message'),
+            btnText: document.querySelector('.btn-text'),
+            loadingSpinner: document.querySelector('.loading-spinner'),
+            serviceModal: document.getElementById('service-modal'),
+            noServiceModal: document.getElementById('no-service-modal'),
+            servicesList: document.getElementById('services-list'),
+            modalLocationName: document.getElementById('modal-location-name'),
+            modalLocationAddress: document.getElementById('modal-location-address'),
+            noServiceLocation: document.getElementById('no-service-location'),
+            closeBtns: document.querySelectorAll('.close-modal')
         };
     }
     
@@ -47,7 +51,7 @@ window.MapAppVanilla = (function() {
         }
         
         map = L.map('map', {
-            center: [-6.2088, 106.8456], // Jakarta center
+            center: [40.7128, -74.0060], // New York City
             zoom: 10,
             zoomControl: true,
             scrollWheelZoom: true,
@@ -65,218 +69,261 @@ window.MapAppVanilla = (function() {
         
         // Handle map click to clear messages
         map.on('click', function() {
-            hideMessages();
+            hideError();
         });
     }
     
-    // Load mock services data
+    // Load mock services data - Use New York services
     function loadMockServices() {
-        fetch('mock_services.json')
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(data => {
-                mockServices = data;
-                console.log('Mock services loaded:', mockServices.length, 'services');
-            })
-            .catch(error => {
-                console.warn('Could not load mock_services.json, using fallback data:', error);
-                mockServices = getFallbackServices();
-            });
-    }
-    
-    // Fallback services data
-    function getFallbackServices() {
-        return [
-            {
-                id: 1,
-                name: "Central Hospital",
-                category: "Healthcare",
-                lat: -6.2088,
-                lon: 106.8456,
-                address: "Jl. MH Thamrin No. 3, Jakarta Pusat"
-            },
-            {
-                id: 2,
-                name: "Bank Mandiri",
-                category: "Banking", 
-                lat: -6.2114,
-                lon: 106.8446,
-                address: "Jl. Jendral Sudirman Kav. 54-55, Jakarta"
-            },
-            {
-                id: 3,
-                name: "Grand Indonesia Mall",
-                category: "Shopping",
-                lat: -6.1953,
-                lon: 106.8230,
-                address: "Jl. MH Thamrin No. 1, Jakarta Pusat"
-            }
+        mockServices = [
+            { id: 1, name: "Manhattan HVAC Center", lat: 40.7589, lon: -73.9851, category: "HVAC Service", address: "123 Broadway, NY 10001" },
+            { id: 2, name: "Brooklyn Air Solutions", lat: 40.6782, lon: -73.9442, category: "Air Conditioning", address: "456 Atlantic Ave, Brooklyn 11217" },
+            { id: 3, name: "Queens Heating & Cooling", lat: 40.7282, lon: -73.7949, category: "Heating Service", address: "789 Northern Blvd, Queens 11372" },
+            { id: 4, name: "Bronx Climate Control", lat: 40.8448, lon: -73.8648, category: "HVAC Repair", address: "321 Grand Concourse, Bronx 10451" },
+            { id: 5, name: "Staten Island Air Care", lat: 40.5795, lon: -74.1502, category: "Air Quality", address: "654 Richmond Ave, Staten Island 10314" },
+            { id: 6, name: "Midtown Mechanical", lat: 40.7505, lon: -73.9934, category: "Commercial HVAC", address: "Times Square, NY 10036" },
+            { id: 7, name: "Upper East Side Climate", lat: 40.7736, lon: -73.9566, category: "Residential Service", address: "1234 Lexington Ave, NY 10028" },
+            { id: 8, name: "Chelsea Heating Pros", lat: 40.7465, lon: -74.0014, category: "Boiler Service", address: "567 W 23rd St, NY 10011" },
+            { id: 9, name: "Financial District AC", lat: 40.7074, lon: -74.0113, category: "Emergency Repair", address: "89 Wall Street, NY 10005" },
+            { id: 10, name: "Harlem Heat Solutions", lat: 40.8176, lon: -73.9482, category: "Installation", address: "2468 Malcolm X Blvd, NY 10027" },
+            { id: 11, name: "Long Island City HVAC", lat: 40.7505, lon: -73.9425, category: "Maintenance", address: "11-11 44th Ave, LIC 11101" },
+            { id: 12, name: "Williamsburg Air Tech", lat: 40.7081, lon: -73.9571, category: "Ductwork", address: "200 Grand St, Brooklyn 11249" },
+            { id: 13, name: "Park Slope Climate Care", lat: 40.6723, lon: -73.9774, category: "Energy Efficiency", address: "78 7th Ave, Brooklyn 11217" },
+            { id: 14, name: "Astoria Heating Hub", lat: 40.7698, lon: -73.9442, category: "Thermostat Service", address: "31-31 31st St, Astoria 11106" },
+            { id: 15, name: "Battery Park Air Systems", lat: 40.7033, lon: -74.0170, category: "Indoor Air Quality", address: "1 Battery Park Plaza, NY 10004" }
         ];
+        console.log('Mock services loaded:', mockServices.length, 'services');
     }
     
     // Bind event handlers
     function bindEvents() {
         // Search button click
-        elements.searchBtn.removeEventListener('click', handleSearchClick);
-        elements.searchBtn.addEventListener('click', handleSearchClick);
+        elements.searchBtn.addEventListener('click', performSearch);
         
         // Enter key in input
-        elements.zipcodeInput.removeEventListener('keypress', handleInputKeypress);
-        elements.zipcodeInput.addEventListener('keypress', handleInputKeypress);
+        elements.zipcodeInput.addEventListener('keypress', function(e) {
+            if (e.which === 13 || e.keyCode === 13) {
+                performSearch();
+            }
+        });
         
         // Input change with debounce
-        elements.zipcodeInput.removeEventListener('input', handleInputChange);
-        elements.zipcodeInput.addEventListener('input', handleInputChange);
+        elements.zipcodeInput.addEventListener('input', function() {
+            const zipcode = this.value.trim();
+            hideError();
+            
+            // Clear previous timeout
+            if (searchTimeout) {
+                clearTimeout(searchTimeout);
+            }
+            
+            // Set new timeout for auto-search
+            if (zipcode.length >= 3) {
+                searchTimeout = setTimeout(() => {
+                    performSearch();
+                }, 1500);
+            }
+        });
         
         // Find services button
-        elements.findServicesBtn.removeEventListener('click', handleFindServicesClick);
-        elements.findServicesBtn.addEventListener('click', handleFindServicesClick);
-    }
-    
-    // Event handlers
-    function handleSearchClick() {
-        const zipcode = elements.zipcodeInput.value.trim();
-        if (zipcode) {
-            searchZipcode(zipcode);
-        } else {
-            showError('Please enter a zipcode');
+        if (elements.findServicesBtn) {
+            elements.findServicesBtn.addEventListener('click', function() {
+                if (currentLocation) {
+                    findNearestServices();
+                    showModal(elements.serviceModal);
+                }
+            });
         }
-    }
-    
-    function handleInputKeypress(e) {
-        if (e.which === 13 || e.keyCode === 13) { // Enter key
-            handleSearchClick();
-        }
-    }
-    
-    function handleInputChange() {
-        const zipcode = elements.zipcodeInput.value.trim();
-        hideMessages();
         
-        // Clear previous timeout
+        // Modal close handlers
+        elements.closeBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const modal = this.closest('.modal');
+                hideModal(modal);
+            });
+        });
+
+        // Click outside modal to close
+        window.addEventListener('click', function(e) {
+            if (e.target.classList.contains('modal')) {
+                hideModal(e.target);
+            }
+        });
+
+        // ESC key to close modal
+        document.addEventListener('keydown', function(e) {
+            if (e.keyCode === 27) {
+                const modals = document.querySelectorAll('.modal');
+                modals.forEach(modal => hideModal(modal));
+            }
+        });
+    }
+    
+    // Search functionality with improved error handling and rate limiting
+    function performSearch() {
+        const zipcode = elements.zipcodeInput.value.trim();
+        
+        if (!zipcode) {
+            showError('Please enter a ZIP code');
+            return;
+        }
+
+        if (!/^\d{5}(-\d{4})?$/.test(zipcode)) {
+            showError('Please enter a valid ZIP code (e.g., 10001 or 10001-1234)');
+            return;
+        }
+
+        // Rate limiting
+        const now = Date.now();
+        if (now - lastSearchTime < RATE_LIMIT_MS) {
+            const remaining = RATE_LIMIT_MS - (now - lastSearchTime);
+            showError(`Please wait ${Math.ceil(remaining/1000)} second(s) before searching again`);
+            return;
+        }
+
+        lastSearchTime = now;
+        hideError();
+        setLoadingState(true);
+
+        // Clear any existing timeout
         if (searchTimeout) {
             clearTimeout(searchTimeout);
         }
-        
-        // Set new timeout for auto-search
-        if (zipcode.length >= 3) {
-            searchTimeout = setTimeout(() => {
-                searchZipcode(zipcode);
-            }, 1500); // Auto-search after 1.5 seconds of no typing
-        }
-    }
-    
-    function handleFindServicesClick() {
-        if (currentLocation) {
-            findNearestServices();
-        }
-    }
-    
-    // Search zipcode using Nominatim API
-    function searchZipcode(zipcode) {
-        const now = Date.now();
-        
-        // Rate limiting check
-        if (now - lastSearchTime < RATE_LIMIT_MS) {
-            const waitTime = RATE_LIMIT_MS - (now - lastSearchTime);
-            showStatus(`Please wait ${Math.ceil(waitTime/1000)} seconds before searching again`);
-            return;
-        }
-        
-        showLoading(true);
-        hideMessages();
-        
-        const query = encodeURIComponent(zipcode);
-        const url = `https://nominatim.openstreetmap.org/search?format=json&q=${query}&addressdetails=1&limit=5&email=demo@example.com`;
-        
-        lastSearchTime = now;
-        
+
+        // Set timeout for search (10 seconds)
+        searchTimeout = setTimeout(() => {
+            setLoadingState(false);
+            showError('Search timed out. Please try again.');
+        }, 10000);
+
+        // Nominatim API search
+        const query = `${zipcode} United States`;
+        const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=us&limit=5&addressdetails=1`;
+
         // Create AbortController for timeout handling
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 10000);
-        
+        const timeoutId = setTimeout(() => controller.abort(), 8000);
+
         fetch(url, {
             method: 'GET',
-            signal: controller.signal
+            signal: controller.signal,
+            headers: {
+                'User-Agent': 'ServiceAreaLocator/1.0 (contact@example.com)'
+            }
         })
         .then(response => {
             clearTimeout(timeoutId);
+            clearTimeout(searchTimeout);
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             return response.json();
         })
         .then(data => {
-            showLoading(false);
+            setLoadingState(false);
             
             if (data && data.length > 0) {
-                const result = data[0]; // Take first result
-                const lat = parseFloat(result.lat);
-                const lon = parseFloat(result.lon);
-                
-                if (isValidCoordinate(lat, lon)) {
-                    showLocationOnMap(lat, lon, result.display_name);
-                    currentLocation = { lat, lon, name: result.display_name };
-                    showStatus(`Found: ${result.display_name}`);
-                    elements.servicesContainer.style.display = 'block';
-                } else {
-                    showError('Invalid coordinates received');
-                }
+                handleSearchSuccess(data[0], zipcode);
             } else {
-                showError('Zipcode not found. Try adding city or country name.');
-                elements.servicesContainer.style.display = 'none';
+                handleSearchFailure(zipcode);
             }
         })
         .catch(error => {
             clearTimeout(timeoutId);
-            showLoading(false);
+            clearTimeout(searchTimeout);
+            setLoadingState(false);
             
             if (error.name === 'AbortError') {
-                showError('Search timeout. Please try again.');
+                showError('Search timed out. Please check your internet connection and try again.');
             } else if (error.message.includes('429')) {
-                showError('Rate limit exceeded. Please wait before searching again.');
+                showError('Too many requests. Please wait a moment and try again.');
             } else {
-                showError('Search failed. Please check your connection and try again.');
+                showError('Unable to search location. Please try again later.');
             }
-            
             console.error('Search error:', error);
-            elements.servicesContainer.style.display = 'none';
         });
     }
-    
-    // Validate coordinates
-    function isValidCoordinate(lat, lon) {
-        return !isNaN(lat) && !isNaN(lon) && 
-               lat >= -90 && lat <= 90 && 
-               lon >= -180 && lon <= 180;
-    }
-    
-    // Show location on map
-    function showLocationOnMap(lat, lon, name) {
+
+    function handleSearchSuccess(location, zipcode) {
+        const lat = parseFloat(location.lat);
+        const lon = parseFloat(location.lon);
+        
         // Remove existing marker
         if (currentMarker) {
             map.removeLayer(currentMarker);
         }
-        
-        // Create custom marker
-        const customIcon = L.divIcon({
-            className: 'custom-marker',
-            iconSize: [20, 20],
-            iconAnchor: [10, 10]
-        });
-        
+
         // Add new marker
-        currentMarker = L.marker([lat, lon], { icon: customIcon })
-            .addTo(map)
-            .bindPopup(`<strong>📍 ${name}</strong><br><small>${lat.toFixed(4)}, ${lon.toFixed(4)}</small>`)
-            .openPopup();
+        currentMarker = L.marker([lat, lon]).addTo(map);
         
-        // Center and zoom map to location
+        // Center map on location
         map.setView([lat, lon], 13);
+
+        // Show find services button
+        if (elements.findServicesBtn) {
+            elements.findServicesBtn.style.display = 'inline-block';
+        }
+        
+        // Store current location
+        currentLocation = { lat, lon, name: location.display_name };
+
+        // Check if we service this area (for demo, we'll say yes for NY area)
+        const isServiceArea = isInServiceArea(lat, lon);
+        
+        if (isServiceArea) {
+            showServiceModal(location, zipcode);
+        } else {
+            showNoServiceModal(location, zipcode);
+        }
+    }
+
+    function handleSearchFailure(zipcode) {
+        showError(`ZIP code "${zipcode}" not found. Please check the ZIP code and try again.`);
+    }
+
+    function isInServiceArea(lat, lon) {
+        // For demo: consider service area as within 50 miles of NYC
+        const nycLat = 40.7128;
+        const nycLon = -74.0060;
+        const distance = calculateDistance(lat, lon, nycLat, nycLon);
+        return distance <= 50; // 50 miles radius
+    }
+
+    function showServiceModal(location, zipcode) {
+        const locationName = location.display_name.split(',')[0];
+        const locationAddress = location.display_name;
+        
+        if (elements.modalLocationName) {
+            elements.modalLocationName.textContent = locationName;
+        }
+        if (elements.modalLocationAddress) {
+            elements.modalLocationAddress.textContent = locationAddress;
+        }
+        
+        // Find and display nearest services
+        findNearestServices();
+        
+        showModal(elements.serviceModal);
+    }
+
+    function showNoServiceModal(location, zipcode) {
+        const locationInfo = location.display_name;
+        if (elements.noServiceLocation) {
+            elements.noServiceLocation.textContent = `Location: ${locationInfo}`;
+        }
+        showModal(elements.noServiceModal);
+    }
+
+    function showModal(modal) {
+        if (modal) {
+            modal.style.display = 'flex';
+        }
+    }
+
+    function hideModal(modal) {
+        if (modal) {
+            modal.style.display = 'none';
+        }
     }
     
     // Find nearest services
@@ -299,55 +346,35 @@ window.MapAppVanilla = (function() {
         
         // Show top 5 nearest services
         const nearestServices = servicesWithDistance.slice(0, 5);
-        displayServices(nearestServices);
+        displayServicesInModal(nearestServices);
         showServicesOnMap(nearestServices);
     }
-    
-    // Calculate distance using Haversine formula
-    function calculateDistance(lat1, lon1, lat2, lon2) {
-        const R = 6371; // Earth's radius in kilometers
-        const dLat = toRad(lat2 - lat1);
-        const dLon = toRad(lon2 - lon1);
-        const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                  Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
-                  Math.sin(dLon/2) * Math.sin(dLon/2);
-        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-        return R * c;
-    }
-    
-    function toRad(deg) {
-        return deg * (Math.PI/180);
-    }
-    
-    // Display services list
-    function displayServices(services) {
-        elements.servicesList.innerHTML = '';
+
+    function displayServicesInModal(services) {
+        if (!elements.servicesList) return;
         
-        if (services.length === 0) {
-            elements.servicesList.innerHTML = '<p>No services found nearby.</p>';
-            return;
-        }
+        elements.servicesList.innerHTML = '';
         
         services.forEach(service => {
             const serviceItem = document.createElement('div');
             serviceItem.className = 'service-item';
+            serviceItem.dataset.lat = service.lat;
+            serviceItem.dataset.lon = service.lon;
+            
             serviceItem.innerHTML = `
-                <div class="service-name">${service.name}</div>
-                <div class="service-category">📂 ${service.category}</div>
-                <div class="service-distance">📍 ${service.distance.toFixed(2)} km away</div>
-                ${service.address ? `<div style="font-size: 12px; color: #666; margin-top: 5px;">${service.address}</div>` : ''}
+                <div class="service-info">
+                    <h5>${service.name}</h5>
+                    <p>${service.category} • ${service.address}</p>
+                </div>
+                <div class="service-distance">${service.distance.toFixed(1)} mi</div>
             `;
             
-            // Click to center on service
             serviceItem.addEventListener('click', function() {
-                map.setView([service.lat, service.lon], 15);
-                
-                // Find and open popup for this service marker
-                serviceMarkers.forEach(marker => {
-                    if (marker.options.serviceId === service.id) {
-                        marker.openPopup();
-                    }
-                });
+                const lat = parseFloat(this.dataset.lat);
+                const lon = parseFloat(this.dataset.lon);
+                map.setView([lat, lon], 15);
+                const modals = document.querySelectorAll('.modal');
+                modals.forEach(modal => hideModal(modal));
             });
             
             elements.servicesList.appendChild(serviceItem);
@@ -362,100 +389,67 @@ window.MapAppVanilla = (function() {
         
         // Add service markers
         services.forEach(service => {
-            const serviceIcon = L.divIcon({
-                className: 'service-marker',
-                iconSize: [16, 16],
-                iconAnchor: [8, 8]
-            });
+            const marker = L.marker([service.lat, service.lon], {
+                icon: L.icon({
+                    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
+                    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+                    iconSize: [25, 41],
+                    iconAnchor: [12, 41],
+                    popupAnchor: [1, -34],
+                    shadowSize: [41, 41]
+                })
+            }).addTo(map);
             
-            const marker = L.marker([service.lat, service.lon], { 
-                icon: serviceIcon,
-                serviceId: service.id
-            })
-            .addTo(map)
-            .bindPopup(`
-                <strong>🏢 ${service.name}</strong><br>
-                <em>${service.category}</em><br>
-                <small>📍 ${service.distance.toFixed(2)} km away</small>
-                ${service.address ? `<br><small>${service.address}</small>` : ''}
+            marker.bindPopup(`
+                <strong>${service.name}</strong><br>
+                ${service.category}<br>
+                ${service.address}<br>
+                <em>${service.distance.toFixed(1)} miles away</em>
             `);
             
             serviceMarkers.push(marker);
         });
-        
-        // Fit map to show all markers
-        if (services.length > 0) {
-            const group = new L.featureGroup([currentMarker, ...serviceMarkers]);
-            map.fitBounds(group.getBounds().pad(0.1));
-        }
+    }
+    
+    // Calculate distance using Haversine formula
+    function calculateDistance(lat1, lon1, lat2, lon2) {
+        const R = 3959; // Earth's radius in miles
+        const dLat = (lat2 - lat1) * Math.PI / 180;
+        const dLon = (lon2 - lon1) * Math.PI / 180;
+        const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                Math.sin(dLon/2) * Math.sin(dLon/2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        return R * c;
     }
     
     // UI Helper Functions
-    function showLoading(show) {
-        if (show) {
+    function setLoadingState(loading) {
+        if (loading) {
             elements.searchBtn.disabled = true;
-            elements.searchText.style.display = 'none';
-            elements.loadingSpinner.style.display = 'inline';
+            if (elements.btnText) elements.btnText.style.display = 'none';
+            if (elements.loadingSpinner) elements.loadingSpinner.style.display = 'inline';
         } else {
             elements.searchBtn.disabled = false;
-            elements.searchText.style.display = 'inline';
-            elements.loadingSpinner.style.display = 'none';
+            if (elements.btnText) elements.btnText.style.display = 'inline';
+            if (elements.loadingSpinner) elements.loadingSpinner.style.display = 'none';
         }
     }
     
     function showError(message) {
-        elements.errorMessage.textContent = message;
-        elements.errorMessage.style.display = 'block';
-        elements.statusMessage.style.display = 'none';
+        if (elements.errorMessage) {
+            elements.errorMessage.textContent = message;
+            elements.errorMessage.style.display = 'block';
+        }
     }
     
-    function showStatus(message) {
-        elements.statusMessage.textContent = message;
-        elements.statusMessage.style.display = 'block';
-        elements.errorMessage.style.display = 'none';
+    function hideError() {
+        if (elements.errorMessage) {
+            elements.errorMessage.style.display = 'none';
+        }
     }
     
-    function hideMessages() {
-        elements.errorMessage.style.display = 'none';
-        elements.statusMessage.style.display = 'none';
-    }
-    
-    // Destroy function for cleanup
-    function destroy() {
-        if (map) {
-            map.remove();
-            map = null;
-        }
-        currentMarker = null;
-        serviceMarkers = [];
-        currentLocation = null;
-        
-        // Clear timeouts
-        if (searchTimeout) {
-            clearTimeout(searchTimeout);
-        }
-        
-        // Unbind events
-        if (elements.searchBtn) {
-            elements.searchBtn.removeEventListener('click', handleSearchClick);
-        }
-        if (elements.zipcodeInput) {
-            elements.zipcodeInput.removeEventListener('keypress', handleInputKeypress);
-            elements.zipcodeInput.removeEventListener('input', handleInputChange);
-        }
-        if (elements.findServicesBtn) {
-            elements.findServicesBtn.removeEventListener('click', handleFindServicesClick);
-        }
-        
-        console.log('Vanilla JS MapApp destroyed');
-    }
-    
-    // Public API
-    return {
-        init: init,
-        destroy: destroy,
-        searchZipcode: searchZipcode,
-        findNearestServices: findNearestServices
-    };
-    
-})();
+    // Initialize the app
+    init();
+});
+

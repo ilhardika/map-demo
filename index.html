@@ -3,68 +3,130 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Map Demo - Zipcode Search</title>
+    <title>Service Area Locator</title>
     
     <!-- Leaflet CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-          crossorigin=""/>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     
-    <!-- Custom CSS -->
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
-        <header class="header">
-            <h1>Map Demo - Zipcode Search</h1>
+        <!-- Header Section -->
+        <header class="hero-section">
+            <div class="hero-content">
+                <h1>Find Our Service Areas</h1>
+                <p>Enter your ZIP code to see if we service your area and find nearby locations</p>
+                
+                <!-- Search Section -->
+                <div class="search-container">
+                    <div class="search-box">
+                        <input type="text" 
+                               id="zipcode-input" 
+                               placeholder="Enter your ZIP code (e.g. 10001)" 
+                               maxlength="10">
+                        <button id="search-btn" class="search-btn">
+                            <span class="btn-text">Find Service Area</span>
+                            <span class="loading-spinner" style="display: none;">
+                                <span></span><span></span><span></span>
+                            </span>
+                        </button>
+                    </div>
+                    <div id="error-message" class="error-message"></div>
+                </div>
+            </div>
         </header>
 
-        <div class="search-container">
-            <div class="search-box">
-                <input type="text" id="zipcodeInput" placeholder="Enter zipcode (e.g., 10001, 10019, 10036)" maxlength="20">
-                <button id="searchBtn" class="search-btn">
-                    <span class="search-text">Search</span>
-                    <span class="loading-spinner" style="display: none;">🔄</span>
+        <!-- Map Section -->
+        <section class="map-section">
+            <div id="map"></div>
+            
+            <!-- Map Controls -->
+            <div class="map-controls">
+                <button id="find-services-btn" class="services-btn" style="display: none;">
+                    View Nearby Services
                 </button>
             </div>
-            <div id="errorMessage" class="error-message" style="display: none;"></div>
-            <div id="statusMessage" class="status-message" style="display: none;"></div>
-        </div>
+        </section>
 
-        <div class="map-container">
-            <div id="map"></div>
-            <div class="map-attribution">
-                © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors
+        <!-- Service Area Modal -->
+        <div id="service-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>
+                        <span class="icon">✅</span>
+                        <span class="text">Great News! We Service Your Area</span>
+                    </h2>
+                    <span class="close-modal">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <div class="location-info">
+                        <div class="location-details">
+                            <h3 id="modal-location-name">Location Found</h3>
+                            <p id="modal-location-address">Address will appear here</p>
+                        </div>
+                        <div class="service-status">
+                            <span class="status-badge available">Service Available</span>
+                        </div>
+                    </div>
+                    
+                    <div class="services-grid">
+                        <h4>Nearby Services & Locations:</h4>
+                        <div id="services-list" class="services-list">
+                            <!-- Services will be populated here -->
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div class="services-container" id="servicesContainer" style="display: none;">
-            <h3>🏢 Nearest Services</h3>
-            <button id="findServicesBtn" class="services-btn">Find Nearest Services</button>
-            <div id="servicesList" class="services-list"></div>
+        <!-- No Service Modal -->
+        <div id="no-service-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>
+                        <span class="icon">❌</span>
+                        <span class="text">Service Area Check</span>
+                    </h2>
+                    <span class="close-modal">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <div class="no-service-content">
+                        <div class="icon-warning">⚠️</div>
+                        <h3>We Don't Currently Service This Area</h3>
+                        <p id="no-service-location">Location details</p>
+                        <p>But don't worry! We're always expanding our service areas.</p>
+                        
+                        <div class="alternative-options">
+                            <h4>What You Can Do:</h4>
+                            <ul>
+                                <li>Contact us - we might be able to make an exception</li>
+                                <li>Check nearby ZIP codes</li>
+                                <li>Join our waiting list for future expansion</li>
+                            </ul>
+                        </div>
+                        
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Leaflet JS -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-            crossorigin=""></script>
+    <!-- JavaScript Implementation -->
+    <!-- Choose one of the following implementations: -->
     
-    <!-- jQuery (for jQuery version) -->
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"
-            integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
-            crossorigin="anonymous"></script>
-    
-    <!-- App Scripts -->
+    <!-- Option 1: jQuery Implementation -->
     <script src="app.jquery.js"></script>
     
-    <script>
-        // Initialize jQuery version by default
-        document.addEventListener('DOMContentLoaded', function() {
-            if (window.MapAppJQuery) {
-                window.MapAppJQuery.init();
-            }
-        });
-    </script>
+    <!-- Option 2: Vanilla JS Implementation (uncomment line below and comment line above) -->
+    <!-- <script src="app.vanilla.js"></script> -->
+    
 </body>
 </html>
